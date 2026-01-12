@@ -50,27 +50,37 @@ const CatalogSection = () => {
               const price = pricePerGram * product.weight;
               return (
                 <div key={product.id} className="catalog-card group p-4 md:p-6">
-                  {/* Gold Bar Visual */}
-                  <div className="gold-bar-icon w-14 h-14 md:w-20 md:h-20 mx-auto mb-4 md:mb-6">
-                    <span className="text-background font-bold text-xs md:text-base">
-                      {product.weight}g
-                    </span>
-                  </div>
+                  {/* Gold Bar Visual or Image */}
+                  {product.image_url ? (
+                    <div className="w-14 h-14 md:w-20 md:h-20 mx-auto mb-4 md:mb-6 rounded-2xl overflow-hidden">
+                      <img 
+                        src={product.image_url} 
+                        alt={`${product.weight}g gold bar`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="gold-bar-icon w-14 h-14 md:w-20 md:h-20 mx-auto mb-4 md:mb-6">
+                      <span className="text-background font-bold text-xs md:text-base">
+                        {product.weight}g
+                      </span>
+                    </div>
+                  )}
 
                   {/* Weight Label */}
-                  <h3 className="font-serif text-base md:text-xl font-semibold text-foreground mb-1">
+                  <h3 className="font-serif text-base md:text-xl font-semibold text-foreground mb-2">
                     {product.weight} {t.grams}
                   </h3>
 
-                  {/* Dimensions */}
-                  <p className="text-[10px] md:text-xs text-muted-foreground mb-1">
-                    {product.length} x {product.width} мм
-                  </p>
-
-                  {/* Purity */}
-                  <p className="text-[10px] md:text-xs text-gold/70 mb-3 md:mb-4">
-                    {t.purity} {product.purity}
-                  </p>
+                  {/* Technical Specs */}
+                  <div className="space-y-1 mb-3 md:mb-4">
+                    <p className="text-[10px] md:text-xs text-muted-foreground">
+                      {t.purity}: <span className="text-gold/80">{product.purity}</span>
+                    </p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground">
+                      {t.dimensions}: <span className="text-foreground/80">{product.width}×{product.length} мм</span>
+                    </p>
+                  </div>
 
                   {/* Price */}
                   <p className="text-lg md:text-2xl font-bold text-gold mb-3 md:mb-6">

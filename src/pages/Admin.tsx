@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useSettings } from '@/hooks/useSettings';
@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { LogOut, Settings, Package, Shield, ArrowLeft } from 'lucide-react';
+import { LogOut, Settings, Package, Shield, ArrowLeft, Upload, Image as ImageIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Admin = () => {
@@ -31,8 +31,28 @@ const Admin = () => {
   const [marginSell, setMarginSell] = useState('');
   const [saving, setSaving] = useState(false);
 
+  // Image upload state
+  const [uploadingProductId, setUploadingProductId] = useState<string | null>(null);
+  const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+
   useEffect(() => {
     checkAuth();
+    
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setIsAuthenticated(false);
+      } else if (session) {
+        const { data: roles } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', session.user.id)
+          .eq('role', 'admin');
+        setIsAuthenticated(roles && roles.length > 0);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -123,6 +143,48 @@ const Admin = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleImageUpload = async (productId: string, file: File) => {
+    setUploadingProductId(productId);
+    
+    try {
+      // Create a unique file name
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${productId}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      // Update product with new image URL
+      const { error: updateError } = await supabase
+        .from('products')
+        .update({ image_url: urlData.publicUrl })
+        .eq('id', productId);
+
+      if (updateError) throw updateError;
+
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      toast.success('Изображение загружено');
+    } catch (error: any) {
+      toast.error(error.message || 'Ошибка загрузки');
+    } finally {
+      setUploadingProductId(null);
+    }
+  };
+
+  const triggerFileInput = (productId: string) => {
+    fileInputRefs.current[productId]?.click();
   };
 
   if (isLoading) {
@@ -299,7 +361,7 @@ const Admin = () => {
               <CardHeader>
                 <CardTitle>Каталог продуктов</CardTitle>
                 <CardDescription>
-                  Просмотр и управление слитками
+                  Управление слитками и загрузка изображений
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -313,13 +375,52 @@ const Admin = () => {
                         className="flex items-center justify-between p-4 rounded-lg border border-border"
                       >
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-gold-light to-gold flex items-center justify-center">
-                            <span className="text-background font-bold text-xs">{product.weight}g</span>
+                          {/* Product Image/Icon */}
+                          <div className="relative">
+                            {product.image_url ? (
+                              <div className="w-16 h-16 rounded-lg overflow-hidden border border-border">
+                                <img 
+                                  src={product.image_url} 
+                                  alt={`${product.weight}g`}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ) : (
+                              <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-gold-light to-gold flex items-center justify-center">
+                                <span className="text-background font-bold text-sm">{product.weight}g</span>
+                              </div>
+                            )}
+                            
+                            {/* Upload Button Overlay */}
+                            <button
+                              onClick={() => triggerFileInput(product.id)}
+                              disabled={uploadingProductId === product.id}
+                              className="absolute -bottom-2 -right-2 w-7 h-7 rounded-full bg-gold hover:bg-gold-light flex items-center justify-center transition-colors disabled:opacity-50"
+                            >
+                              {uploadingProductId === product.id ? (
+                                <div className="w-3 h-3 border border-background border-t-transparent rounded-full animate-spin" />
+                              ) : (
+                                <Upload className="w-3.5 h-3.5 text-background" />
+                              )}
+                            </button>
+                            
+                            {/* Hidden File Input */}
+                            <input
+                              ref={(el) => fileInputRefs.current[product.id] = el}
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleImageUpload(product.id, file);
+                              }}
+                            />
                           </div>
+                          
                           <div>
                             <p className="font-medium">{product.weight} грамм</p>
                             <p className="text-sm text-muted-foreground">
-                              {product.length} × {product.width} мм • Проба {product.purity}
+                              {product.width} × {product.length} мм • Проба {product.purity}
                             </p>
                           </div>
                         </div>

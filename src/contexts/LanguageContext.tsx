@@ -20,11 +20,13 @@ interface Translations {
   weSell: string;
   perGram: string;
   inStock: string;
+  pricePerGram: string;
   
   // Catalog
   catalogTitle: string;
   catalogSubtitle: string;
   grams: string;
+  weight: string;
   reserve: string;
   purity: string;
   dimensions: string;
@@ -84,9 +86,11 @@ const translations: Record<Language, Translations> = {
     weSell: 'Мы продаём',
     perGram: 'за грамм',
     inStock: 'В наличии — готово к выдаче',
+    pricePerGram: 'Цена за 1 грамм',
     catalogTitle: 'Каталог',
     catalogSubtitle: 'Выберите подходящий размер инвестиции',
     grams: 'грамм',
+    weight: 'Вес',
     reserve: 'В WhatsApp',
     purity: 'Проба',
     dimensions: 'Размеры',
@@ -136,9 +140,11 @@ const translations: Record<Language, Translations> = {
     weSell: 'Біз сатамыз',
     perGram: 'грамм үшін',
     inStock: 'Қолда бар — беруге дайын',
+    pricePerGram: '1 грамм үшін баға',
     catalogTitle: 'Каталог',
     catalogSubtitle: 'Сізге қолайлы инвестиция көлемін таңдаңыз',
     grams: 'грамм',
+    weight: 'Салмақ',
     reserve: 'WhatsApp-қа',
     purity: 'Сынама',
     dimensions: 'Өлшемдері',

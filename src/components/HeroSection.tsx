@@ -31,8 +31,11 @@ const HeroSection = () => {
           <span className="text-gold-gradient">{t.headline2}</span>
         </h1>
 
-        <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 md:mb-12 px-4">
+        <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto mb-2 px-4">
           {t.heroSubtitle}
+        </p>
+        <p className="text-xs md:text-sm text-gold/70 max-w-2xl mx-auto mb-8 md:mb-12 px-4">
+          Лицензия АГФ НБ РК №7514015 от 19.12.2014
         </p>
 
         {/* CTA Buttons */}
@@ -77,7 +80,7 @@ const HeroSection = () => {
               {isLoading ? '...' : buyRate.toLocaleString('ru-RU')}
               <span className="text-xl md:text-2xl text-teal/70 ml-1">₸</span>
             </div>
-            <p className="text-xs md:text-sm text-muted-foreground">{t.perGram}</p>
+            <p className="text-xs md:text-sm text-muted-foreground">{t.pricePerGram}</p>
           </div>
 
           {/* We Sell Card */}
@@ -92,7 +95,7 @@ const HeroSection = () => {
               {isLoading ? '...' : sellRate.toLocaleString('ru-RU')}
               <span className="text-xl md:text-2xl text-gold/70 ml-1">₸</span>
             </div>
-            <p className="text-xs md:text-sm text-muted-foreground">{t.perGram}</p>
+            <p className="text-xs md:text-sm text-muted-foreground">{t.pricePerGram}</p>
           </div>
         </div>
 
