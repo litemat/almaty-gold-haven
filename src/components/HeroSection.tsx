@@ -1,14 +1,14 @@
 import { ArrowDown, TrendingDown, TrendingUp } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useSettings, calculateBuyPrice, calculateSellPrice } from "@/hooks/useSettings";
+import { useSettings, getBuyPrice, getSellPrice } from "@/hooks/useSettings";
 
 const HeroSection = () => {
   const { t } = useLanguage();
   const { data: settings, isLoading } = useSettings();
 
   const nbkRate = settings?.nbk_rate ?? 41340;
-  const buyRate = calculateBuyPrice(nbkRate, settings?.margin_buy ?? 2.5);
-  const sellRate = calculateSellPrice(nbkRate, settings?.margin_sell ?? 3.0);
+  const buyRate = getBuyPrice(settings);
+  const sellRate = getSellPrice(settings);
 
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center pt-20 md:pt-24 pb-16 px-4 md:px-6">

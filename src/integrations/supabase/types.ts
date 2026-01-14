@@ -16,27 +16,33 @@ export type Database = {
     Tables: {
       global_settings: {
         Row: {
+          buy_price: number | null
           hero_banner_url: string | null
           id: string
           margin_buy: number
           margin_sell: number
           nbk_rate: number
+          sell_price: number | null
           updated_at: string
         }
         Insert: {
+          buy_price?: number | null
           hero_banner_url?: string | null
           id?: string
           margin_buy?: number
           margin_sell?: number
           nbk_rate?: number
+          sell_price?: number | null
           updated_at?: string
         }
         Update: {
+          buy_price?: number | null
           hero_banner_url?: string | null
           id?: string
           margin_buy?: number
           margin_sell?: number
           nbk_rate?: number
+          sell_price?: number | null
           updated_at?: string
         }
         Relationships: []
